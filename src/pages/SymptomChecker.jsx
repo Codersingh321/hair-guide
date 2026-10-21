@@ -1,17 +1,45 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { questions, causes } from "../data/checkerData.js";
-import { getVisibleQuestions, calculateResults } from "../utils/scoring.js";
+import { profileQuestions, extraConcerns, tips } from "../data/profileData.js";
+import {
+  getVisibleQuestions,
+  calculateResults,
+  getTips,
+} from "../utils/scoring.js";
 
 const RANK_LABELS = ["Most likely", "Also possible", "Less likely"];
+const COST_LABELS = { free: "Free", low: "Low cost", medium: "Costs more" };
+const EVIDENCE_LABELS = {
+  strong: { text: "Well supported", className: "badge badge-strong" },
+  limited: { text: "Limited evidence", className: "badge badge-limited" },
+  weak: { text: "Little or no evidence", className: "badge badge-weak" },
+};
+
+const emptyProfile = { diet: "", place: "", budget: "", extras: [], note: "" };
 
 export default function SymptomChecker() {
+  const [stage, setStage] = useState("profile");
+  const [profile, setProfile] = useState(emptyProfile);
   const [answers, setAnswers] = useState({});
   const [step, setStep] = useState(0);
-  const [done, setDone] = useState(false);
 
   const visible = getVisibleQuestions(questions, answers);
   const current = visible[step];
+
+  function pickProfile(id, value) {
+    setProfile({ ...profile, [id]: value });
+  }
+
+  function toggleExtra(value) {
+    const selected = profile.extras.includes(value);
+    setProfile({
+      ...profile,
+      extras: selected
+        ? profile.extras.filter((v) => v !== value)
+        : [...profile.extras, value],
+    });
+  }
 
   function choose(value) {
     let newAnswers = { ...answers, [current.id]: value };
@@ -25,29 +53,113 @@ export default function SymptomChecker() {
     const newVisible = getVisibleQuestions(questions, newAnswers);
 
     if (step + 1 >= newVisible.length) {
-      setDone(true);
+      setStage("results");
     } else {
       setStep(step + 1);
     }
   }
 
   function goBack() {
-    if (done) {
-      setDone(false);
+    if (stage === "results") {
+      setStage("questions");
       setStep(visible.length - 1);
     } else if (step > 0) {
       setStep(step - 1);
+    } else {
+      setStage("profile");
     }
   }
 
   function restart() {
+    setProfile(emptyProfile);
     setAnswers({});
     setStep(0);
-    setDone(false);
+    setStage("profile");
   }
 
-  if (done) {
-    const { ranked, redFlags } = calculateResults(visible, answers, causes);
+  // ---------- Stage 1: profile ----------
+  if (stage === "profile") {
+    const ready = profile.diet && profile.place && profile.budget;
+
+    return (
+      <div className="card">
+        <h1 className="question">A little about you</h1>
+        <p className="summary">
+          This helps us make tips that fit your food, place, and budget.
+          Everything stays in your browser. Nothing is sent or saved.
+        </p>
+
+        {profileQuestions.map((q) => (
+          <fieldset className="profile-group" key={q.id}>
+            <legend>{q.text}</legend>
+            <div className="chip-row">
+              {q.options.map((opt) => (
+                <button
+                  type="button"
+                  key={opt.value}
+                  className={
+                    "chip" + (profile[q.id] === opt.value ? " selected" : "")
+                  }
+                  onClick={() => pickProfile(q.id, opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        ))}
+
+        <fieldset className="profile-group">
+          <legend>Anything else you notice? (optional, pick any)</legend>
+          <div className="chip-row">
+            {extraConcerns.map((opt) => (
+              <button
+                type="button"
+                key={opt.value}
+                className={
+                  "chip" +
+                  (profile.extras.includes(opt.value) ? " selected" : "")
+                }
+                onClick={() => toggleExtra(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="profile-group">
+          <legend>Your own note (optional)</legend>
+          <textarea
+            className="note-box"
+            maxLength={300}
+            placeholder="For example: hair breaks near the ends"
+            value={profile.note}
+            onChange={(e) => setProfile({ ...profile, note: e.target.value })}
+          />
+        </fieldset>
+
+        <div className="profile-actions">
+          <button disabled={!ready} onClick={() => setStage("questions")}>
+            Continue
+          </button>
+          {!ready && (
+            <p className="progress-text">Pick one option in each group above.</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ---------- Stage 3: results ----------
+  if (stage === "results") {
+    const { ranked, redFlags } = calculateResults(
+      visible,
+      answers,
+      causes,
+      profile
+    );
+    const personalTips = getTips(tips, profile, ranked, answers.concern);
 
     return (
       <div>
@@ -82,12 +194,41 @@ export default function SymptomChecker() {
               <p>{cause.description}</p>
               <h3>General care steps</h3>
               <ul className="care-list">
-                {cause.care.map((step, i) => (
-                  <li key={i}>{step}</li>
+                {cause.care.map((item, i) => (
+                  <li key={i}>{item}</li>
                 ))}
               </ul>
             </div>
           ))
+        )}
+
+        {personalTips.length > 0 && (
+          <div>
+            <h2>Tips for your situation</h2>
+            <p className="summary">Cheapest options come first.</p>
+            {personalTips.map((tip) => {
+              const evidence = tip.evidence && EVIDENCE_LABELS[tip.evidence];
+              return (
+                <div className="card tip-card" key={tip.id}>
+                  <span className="badge badge-cost">{COST_LABELS[tip.cost]}</span>
+                  {evidence && (
+                    <span className={evidence.className}>{evidence.text}</span>
+                  )}
+                  <p>{tip.text}</p>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {profile.note.trim() && (
+          <div className="user-note">
+            <strong>Your note:</strong> {profile.note}
+            <br />
+            <small>
+              We don't analyse notes. Mention this to a doctor if you see one.
+            </small>
+          </div>
         )}
 
         <div className="disclaimer-box">
@@ -97,6 +238,9 @@ export default function SymptomChecker() {
 
         <div className="result-actions">
           <button onClick={restart}>Start again</button>
+          <button className="link-btn" onClick={goBack}>
+            ← Change my answers
+          </button>
           <Link to="/learn" className="btn btn-secondary">
             Read the Learn pages
           </Link>
@@ -108,6 +252,7 @@ export default function SymptomChecker() {
     );
   }
 
+  // ---------- Stage 2: questions ----------
   if (!current) return null;
 
   const total = answers.concern ? visible.length : null;
@@ -139,11 +284,9 @@ export default function SymptomChecker() {
         ))}
       </div>
 
-      {step > 0 && (
-        <button className="link-btn" onClick={goBack}>
-          ← Back
-        </button>
-      )}
+      <button className="link-btn" onClick={goBack}>
+        ← Back
+      </button>
     </div>
   );
 }

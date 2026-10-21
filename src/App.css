@@ -363,3 +363,89 @@ button:hover {
   gap: 10px;
   flex-wrap: wrap;
 }
+/* Profile step */
+.profile-group {
+  border: none;
+  padding: 0;
+  margin: 22px 0 0;
+}
+
+.profile-group legend {
+  font-weight: 600;
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.chip:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+}
+
+.chip.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.chip.selected:hover {
+  background: var(--primary-dark);
+}
+
+.note-box {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: var(--surface);
+  color: var(--text);
+  resize: vertical;
+}
+
+.profile-actions {
+  margin-top: 26px;
+}
+
+button:disabled,
+button:disabled:hover {
+  background: #c9cfd2;
+  cursor: not-allowed;
+}
+
+/* Tips */
+.badge-cost {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  margin-right: 6px;
+}
+
+.tip-card p {
+  margin: 6px 0 0;
+}
+
+.user-note {
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  color: var(--muted);
+}

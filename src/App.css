@@ -12,7 +12,7 @@
 .brand {
   font-weight: 700;
   font-size: 1.2rem;
-  color: #6b4f2a;
+  color: #1f1202;
 }
 
 .navbar nav {
@@ -70,4 +70,69 @@ button {
 
 button:hover {
   background: #553c1f;
+}
+.topic-list {
+  display: grid;
+  gap: 12px;
+}
+
+.topic-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+
+.summary {
+  color: #555;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+
+.badge-strong {
+  background: #e3f1e3;
+  color: #2d6a2d;
+}
+
+.badge-limited {
+  background: #fff1d6;
+  color: #8a5a00;
+}
+
+.badge-weak {
+  background: #f8e0e0;
+  color: #9b2c2c;
+}
+
+.points {
+  list-style: none;
+  padding: 0;
+}
+
+.points li {
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+}
+
+.points p {
+  margin: 0;
+}
+
+.red-flags {
+  background: #fdf0f0;
+  border-left: 4px solid #b84a4a;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-top: 16px;
+}
+
+.sources {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 16px;
 }

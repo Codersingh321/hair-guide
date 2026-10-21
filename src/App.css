@@ -449,3 +449,6 @@ button:disabled:hover {
   margin-bottom: 16px;
   color: var(--muted);
 }
+.content > .card:first-child {
+  margin-top: 8px;
+}

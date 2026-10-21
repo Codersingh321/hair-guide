@@ -270,3 +270,96 @@ button:hover {
   text-align: center;
   color: var(--primary-dark);
 }
+/* Symptom checker */
+.progress-text {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.progress {
+  height: 6px;
+  background: var(--primary-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.25s;
+}
+
+.question {
+  font-size: 1.4rem;
+  margin: 20px 0 8px;
+}
+
+.options {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.option {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  text-align: left;
+  padding: 14px 16px;
+  font-weight: 500;
+}
+
+.option:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+}
+
+.option.selected {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary-dark);
+}
+
+.link-btn {
+  background: none;
+  color: var(--muted);
+  padding: 0;
+  margin-top: 18px;
+  font-weight: 500;
+}
+
+.link-btn:hover {
+  background: none;
+  color: var(--primary-dark);
+}
+
+.cause-title {
+  margin: 4px 0 8px;
+  font-size: 1.15rem;
+}
+
+.care-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--muted);
+}
+
+.care-list li {
+  margin-bottom: 6px;
+}
+
+.disclaimer-box {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 8px 0 20px;
+  font-size: 0.95rem;
+}
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}

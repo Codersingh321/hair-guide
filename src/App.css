@@ -1,0 +1,73 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e0d8;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #6b4f2a;
+}
+
+.navbar nav {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.navbar a {
+  text-decoration: none;
+  color: #555;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.navbar a.active {
+  background: #efe6d8;
+  color: #6b4f2a;
+  font-weight: 600;
+}
+
+.content {
+  max-width: 800px;
+  margin: 32px auto;
+  padding: 0 20px;
+  min-height: 60vh;
+}
+
+.footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #777;
+  padding: 24px;
+  border-top: 1px solid #e5e0d8;
+  margin-top: 40px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e0d8;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+button {
+  background: #6b4f2a;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover {
+  background: #553c1f;
+}

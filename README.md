@@ -1,16 +1,35 @@
-# React + Vite
+# HairGuide
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A free, evidence-labelled guide to hair fall, early greying, and scalp care.
+Built to help people understand their hair problem before spending money.
 
-Currently, two official plugins are available:
+**Live site:** https://hair-guide-hazel.vercel.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Symptom checker:** a rule-based tool with weighted scoring across likely causes, conditional questions, and red-flag alerts that point to a doctor.
+- **Personalised tips:** advice filtered by diet, place (city, town, village), and budget, sorted cheapest first.
+- **Learn pages:** hair fall, greying, and dandruff, with each claim labelled as well supported, limited evidence, or little evidence.
+- **15-day tracker:** daily shedding log with a trend chart, edit, delete, and export.
+- **Privacy-first:** all data stays in the browser.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech
 
-## Expanding the ESLint configuration
+React, Vite, React Router, Recharts, plain CSS. Hosted on Vercel.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## How the checker works
+
+Each answer adds points to possible causes (a map of cause to score). Questions
+appear or hide based on earlier answers. The top three causes are shown, and
+red-flag answers are collected separately. All questions, scores, and tips live
+in `src/data`, so content can be edited without touching page code.
+
+## Run locally
+
+    npm install
+    npm run dev
+
+## Disclaimer
+
+Educational information only. Not medical advice. The questions and scores
+are a draft and have not been clinically reviewed.

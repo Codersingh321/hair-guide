@@ -527,3 +527,21 @@ button:disabled:hover {
 .profile-group + .field {
   margin-top: 18px;
 }
+/* Logo */
+.brand-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.brand-logo {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .brand-logo {
+    height: 32px;
+  }
+}

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { TAGLINE } from "../config.js";
 
 const features = [
   {
@@ -22,10 +23,11 @@ export default function Home() {
   return (
     <div>
       <section className="hero">
-        <h1>Understand your hair before you spend money on it</h1>
+        <h1>{TAGLINE}</h1>
         <p>
-          Free, research-based guidance on hair fall, greying, and scalp care.
-          We tell you what is proven, what isn't, and when to see a doctor.
+          Understand your hair before you spend money on it. Free,
+          research-based guidance on hair fall, greying, and scalp care. We
+          tell you what is proven, what isn't, and when to see a doctor.
         </p>
         <div className="hero-actions">
           <Link to="/check" className="btn btn-primary">

@@ -5,13 +5,17 @@ import Learn from "./pages/Learn.jsx";
 import Tracker from "./pages/Tracker.jsx";
 import Privacy from "./pages/Privacy.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import logo from "./assets/hairally-logo-800.png";
+import { SITE_NAME } from "./config.js";
 import "./App.css";
 
 export default function App() {
   return (
     <div className="app">
       <header className="navbar">
-        <span className="brand">HairGuide</span>
+        <Link to="/" className="brand-link" aria-label={SITE_NAME + " home"}>
+          <img src={logo} alt={SITE_NAME} className="brand-logo" />
+        </Link>
         <nav>
           <NavLink to="/">Home</NavLink>
           <NavLink to="/check">Symptom Checker</NavLink>

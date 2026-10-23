@@ -1,3 +1,5 @@
+import { SITE_NAME } from "../config.js";
+
 export default function Privacy() {
   return (
     <div className="card">
@@ -31,7 +33,7 @@ export default function Privacy() {
 
       <h3>Not medical advice</h3>
       <p>
-        HairGuide gives general educational information. It does not diagnose
+        {SITE_NAME} gives general educational information. It does not diagnose
         conditions or replace a doctor or dermatologist.
       </p>
 

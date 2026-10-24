@@ -1141,3 +1141,28 @@ button:disabled:hover {
   color: var(--primary-dark);
   font-weight: 600;
 }
+/* Mobile navbar fix */
+@media (max-width: 860px) {
+  .navbar {
+    flex-wrap: nowrap;
+    padding: 10px 14px;
+  }
+
+  .navbar nav {
+    display: none;
+  }
+
+  .brand-logo {
+    height: 30px;
+  }
+
+  .account-menu {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 860px) {
+  .navbar nav {
+    display: none;
+  }
+}

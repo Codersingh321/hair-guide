@@ -1,5 +1,9 @@
 import { Link } from "react-router-dom";
 import { TAGLINE } from "../config.js";
+import tile1 from "../assets/photos/tile-1.webp";
+import tile2 from "../assets/photos/tile-2.webp";
+import tile3 from "../assets/photos/tile-3.webp";
+import heart from "../assets/photos/promise-heart.webp";
 
 const features = [
   {
@@ -53,34 +57,10 @@ const steps = [
   },
 ];
 
-function HeroArt({ side }) {
-  return (
-    <svg
-      className={"hero-art hero-art-" + side}
-      viewBox="0 0 200 300"
-      aria-hidden="true"
-    >
-      <path pathLength="1" d="M120 0 C 40 80, 160 150, 80 300" />
-      <path
-        pathLength="1"
-        d="M150 0 C 70 90, 190 160, 110 300"
-        style={{ animationDelay: "0.3s" }}
-      />
-      <path
-        pathLength="1"
-        d="M90 0 C 10 70, 130 140, 50 300"
-        style={{ animationDelay: "0.6s" }}
-      />
-    </svg>
-  );
-}
-
 export default function Home() {
   return (
-    <div>
-      <section className="hero">
-        <HeroArt side="left" />
-        <HeroArt side="right" />
+    <div className="home-wide">
+      <section className="hero3">
         <h1>{TAGLINE}</h1>
         <p>
           Understand your hair before you spend money on it. Free,
@@ -94,6 +74,12 @@ export default function Home() {
           <Link to="/learn" className="btn btn-secondary">
             Learn about hair problems
           </Link>
+        </div>
+
+        <div className="hero3-photos" aria-hidden="true">
+          <img className="ph" src={tile3} alt="" width="640" height="800" decoding="async" />
+          <img className="ph ph-mid" src={tile1} alt="" width="640" height="800" fetchPriority="high" decoding="async" />
+          <img className="ph" src={tile2} alt="" width="640" height="800" decoding="async" />
         </div>
       </section>
 
@@ -120,9 +106,17 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="trust">
-        <strong>Our promise:</strong> No products to sell, no miracle claims.
-        Just honest, evidence-labelled information.
+      <section className="promise">
+        <div className="promise-text">
+          <h2>Our promise</h2>
+          <p>No products to sell and no miracle claims. Just honest information.</p>
+          <ul className="care-list">
+            <li>Free to use, with no account needed</li>
+            <li>Every claim labelled by how strong the evidence is</li>
+            <li>Clear signs for when to see a doctor</li>
+          </ul>
+        </div>
+        <img className="promise-img" src={heart} alt="" width="720" height="720" loading="lazy" decoding="async" />
       </section>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { topics } from "../data/topics.js";
+import header from "../assets/photos/learn-header.webp";
 
 const EVIDENCE_LABELS = {
   strong: { text: "Well supported", className: "badge badge-strong" },
@@ -52,6 +53,14 @@ export default function Learn() {
 
   return (
     <div>
+      <img
+        className="page-banner"
+        src={header}
+        alt=""
+        width="1200"
+        height="400"
+        decoding="async"
+      />
       <h1>Learn</h1>
       <p>
         Each claim shows how strong the evidence is, so you can see what's

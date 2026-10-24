@@ -1,13 +1,29 @@
+
 import { useState, useEffect } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { lazy, Suspense } from "react";
+const RechartsComponents = lazy(() =>
+  import("recharts").then((m) => ({
+    default: function Chart({ data }) {
+      return (
+        <m.ResponsiveContainer width="100%" height={260}>
+          <m.LineChart data={data}>
+            <m.CartesianGrid strokeDasharray="3 3" stroke="#e4e0d6" />
+            <m.XAxis dataKey="date" />
+            <m.YAxis allowDecimals={false} />
+            <m.Tooltip />
+            <m.Line
+              type="monotone"
+              dataKey="shedding"
+              stroke="#2f6f5e"
+              strokeWidth={2}
+              dot={{ r: 3 }}
+            />
+          </m.LineChart>
+        </m.ResponsiveContainer>
+      );
+    },
+  }))
+);
 import {
   loadEntries,
   saveEntries,
@@ -189,22 +205,10 @@ export default function Tracker() {
             </div>
 
             <div className="chart-box">
-              <ResponsiveContainer width="100%" height={260}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d6" />
-                  <XAxis dataKey="date" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="shedding"
-                    stroke="#2f6f5e"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+  <Suspense fallback={<p className="progress-text">Loading chart...</p>}>
+    <RechartsComponents data={chartData} />
+  </Suspense>
+</div>
           </div>
 
           <div className="card">

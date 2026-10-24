@@ -975,4 +975,9 @@ button:disabled:hover {
     height: 240px;
   }
 }
-
+.brand-logo {
+  height: 40px;
+  width: auto;
+  display: block;
+  content-visibility: auto;
+}

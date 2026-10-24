@@ -1,6 +1,20 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { lazy, Suspense } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
+import { supabase } from "../lib/supabase.js";
+import {
+  loadLocalEntries,
+  saveLocalEntries,
+  loadRemoteEntries,
+  upsertRemoteEntry,
+  deleteRemoteEntry,
+  importLocalToRemote,
+  todayString,
+  sortByDate,
+  summarize,
+} from "../utils/trackerStorage.js";
+
 const RechartsComponents = lazy(() =>
   import("recharts").then((m) => ({
     default: function Chart({ data }) {
@@ -24,13 +38,6 @@ const RechartsComponents = lazy(() =>
     },
   }))
 );
-import {
-  loadEntries,
-  saveEntries,
-  todayString,
-  sortByDate,
-  summarize,
-} from "../utils/trackerStorage.js";
 
 const SCALP_OPTIONS = [
   { value: "normal", label: "Normal" },
@@ -44,13 +51,48 @@ function emptyForm() {
 }
 
 export default function Tracker() {
-  const [entries, setEntries] = useState(() => loadEntries());
+  const { user, isLoggedIn } = useAuth();
+  const [entries, setEntries] = useState([]);
   const [form, setForm] = useState(emptyForm());
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [imported, setImported] = useState(false);
+
+  // Load entries when component mounts or user changes
+  const loadEntries = useCallback(async () => {
+    setLoading(true);
+    try {
+      if (isLoggedIn && user) {
+        // Import any local entries first (only once per session)
+        if (!imported) {
+          const count = await importLocalToRemote(supabase, user.id);
+          if (count > 0) {
+            setMessage(`Imported ${count} entries from your browser.`);
+          }
+          setImported(true);
+        }
+        const remote = await loadRemoteEntries(supabase, user.id);
+        setEntries(remote);
+      } else {
+        setEntries(loadLocalEntries());
+      }
+    } catch (err) {
+      setMessage("Could not load entries: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [isLoggedIn, user, imported]);
 
   useEffect(() => {
-    saveEntries(entries);
-  }, [entries]);
+    loadEntries();
+  }, [loadEntries]);
+
+  // Save local entries to localStorage whenever they change (guest only)
+  useEffect(() => {
+    if (!isLoggedIn) {
+      saveLocalEntries(entries);
+    }
+  }, [entries, isLoggedIn]);
 
   const sorted = sortByDate(entries);
   const summary = summarize(entries);
@@ -59,10 +101,9 @@ export default function Tracker() {
     shedding: e.shedding,
   }));
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const count = Number(form.shedding);
-
     if (form.shedding === "" || Number.isNaN(count) || count < 0 || count > 1000) {
       setMessage("Enter a shedding count between 0 and 1000.");
       return;
@@ -79,11 +120,20 @@ export default function Tracker() {
       note: form.note.trim(),
     };
 
-    // One entry per day: adding the same date replaces the old one.
-    const others = entries.filter((x) => x.date !== entry.date);
-    setEntries([...others, entry]);
-    setForm(emptyForm());
-    setMessage("Saved.");
+    try {
+      if (isLoggedIn && user) {
+        await upsertRemoteEntry(supabase, user.id, entry);
+        const remote = await loadRemoteEntries(supabase, user.id);
+        setEntries(remote);
+      } else {
+        const others = entries.filter((x) => x.date !== entry.date);
+        setEntries([...others, entry]);
+      }
+      setForm(emptyForm());
+      setMessage("Saved.");
+    } catch (err) {
+      setMessage("Could not save: " + err.message);
+    }
   }
 
   function editEntry(entry) {
@@ -96,14 +146,31 @@ export default function Tracker() {
     setMessage("Editing " + entry.date + ". Press Save to update it.");
   }
 
-  function deleteEntry(date) {
-    setEntries(entries.filter((x) => x.date !== date));
+  async function deleteEntry(date) {
+    try {
+      if (isLoggedIn && user) {
+        await deleteRemoteEntry(supabase, user.id, date);
+        setEntries((prev) => prev.filter((x) => x.date !== date));
+      } else {
+        setEntries((prev) => prev.filter((x) => x.date !== date));
+      }
+    } catch (err) {
+      setMessage("Could not delete: " + err.message);
+    }
   }
 
-  function clearAll() {
-    if (window.confirm("Delete all tracker entries? This can't be undone.")) {
+  async function clearAll() {
+    if (!window.confirm("Delete all tracker entries? This can't be undone.")) return;
+    try {
+      if (isLoggedIn && user) {
+        for (const e of entries) {
+          await deleteRemoteEntry(supabase, user.id, e.date);
+        }
+      }
       setEntries([]);
       setMessage("All entries deleted.");
+    } catch (err) {
+      setMessage("Could not delete all: " + err.message);
     }
   }
 
@@ -114,9 +181,17 @@ export default function Tracker() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "hairguide-tracker.json";
+    link.download = "hairally-tracker.json";
     link.click();
     URL.revokeObjectURL(url);
+  }
+
+  if (loading) {
+    return (
+      <div className="card">
+        <p className="progress-text">Loading your entries...</p>
+      </div>
+    );
   }
 
   return (
@@ -124,8 +199,19 @@ export default function Tracker() {
       <h1>15-Day Tracker</h1>
       <p className="summary">
         Log once a day for 15 days. Hair changes slowly, so 15 days can show
-        early signs only, not final results. Your data stays in this browser.
+        early signs only, not final results.
+        {isLoggedIn
+          ? " Your entries sync across your devices."
+          : " Your data stays in this browser."}
       </p>
+
+      {!isLoggedIn && (
+        <div className="guest-banner">
+          Guest mode: data is saved in this browser only. If you clear your
+          browser data, it is erased.{" "}
+          <Link to="/login">Save my data across devices →</Link>
+        </div>
+      )}
 
       <form className="card" onSubmit={handleSubmit}>
         <h2 className="cause-title">Add today's log</h2>
@@ -200,15 +286,18 @@ export default function Tracker() {
             <div className="progress">
               <div
                 className="progress-bar"
-                style={{ width: `${Math.min(100, (entries.length / 15) * 100)}%` }}
+                style={{
+                  width: `${Math.min(100, (entries.length / 15) * 100)}%`,
+                }}
               />
             </div>
-
             <div className="chart-box">
-  <Suspense fallback={<p className="progress-text">Loading chart...</p>}>
-    <RechartsComponents data={chartData} />
-  </Suspense>
-</div>
+              <Suspense
+                fallback={<p className="progress-text">Loading chart...</p>}
+              >
+                <RechartsComponents data={chartData} />
+              </Suspense>
+            </div>
           </div>
 
           <div className="card">
@@ -216,9 +305,10 @@ export default function Tracker() {
             {summary ? (
               <p>
                 Average shedding in your first entries was{" "}
-                <strong>{summary.first.toFixed(0)}</strong> hairs a day. In your
-                latest entries it was <strong>{summary.last.toFixed(0)}</strong>{" "}
-                ({summary.trend === "steady"
+                <strong>{summary.first.toFixed(0)}</strong> hairs a day. In
+                your latest entries it was{" "}
+                <strong>{summary.last.toFixed(0)}</strong> (
+                {summary.trend === "steady"
                   ? "about the same"
                   : summary.trend === "lower"
                   ? "lower"
@@ -232,8 +322,8 @@ export default function Tracker() {
               <p>Log at least 6 days to see a comparison.</p>
             )}
             <p className="progress-text">
-              Not medical advice. Counting hairs is imprecise, and a normal day
-              can be anywhere from about 50 to 100 hairs.
+              Not medical advice. Counting hairs is imprecise, and a normal
+              day can be anywhere from about 50 to 100 hairs.
             </p>
           </div>
 
@@ -283,13 +373,10 @@ export default function Tracker() {
               <button type="button" onClick={exportData}>
                 Export my data
               </button>
-              <button type="button" className="danger-btn" onClick={clearAll}>
+              <button
+                type="button"
+                className="danger-btn"
+                onClick={clearAll}
+              >
                 Delete all
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}

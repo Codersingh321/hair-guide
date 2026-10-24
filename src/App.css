@@ -1126,3 +1126,18 @@ button:disabled:hover {
   color: #ffffff;
   white-space: nowrap;
 }
+/* Guest banner on Tracker */
+.guest-banner {
+  background: #fff8e6;
+  border: 1px solid #f0d080;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 0.92rem;
+  color: #5a4200;
+}
+
+.guest-banner a {
+  color: var(--primary-dark);
+  font-weight: 600;
+}

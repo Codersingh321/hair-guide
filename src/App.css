@@ -981,3 +981,148 @@ button:disabled:hover {
   display: block;
   content-visibility: auto;
 }
+/* Auth */
+.auth-wrap {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-title {
+  text-align: center;
+  margin: 0 0 20px;
+  font-size: 1.6rem;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--border);
+}
+
+.auth-tab {
+  background: none;
+  color: var(--muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 16px;
+  margin-bottom: -2px;
+  border-radius: 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-tab.active {
+  color: var(--primary-dark);
+  border-bottom-color: var(--primary);
+  background: none;
+}
+
+.auth-tab:hover {
+  background: none;
+  color: var(--primary-dark);
+}
+
+.consent-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--primary-soft);
+  border-radius: 10px;
+}
+
+.consent-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.consent-row input[type="checkbox"] {
+  margin-top: 3px;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+}
+
+.auth-error {
+  color: #9b2c2c;
+  background: #fdf0f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 12px 0 0;
+  font-size: 0.92rem;
+}
+
+.auth-info {
+  color: #2d6a2d;
+  background: #e3f1e3;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 12px 0 0;
+  font-size: 0.92rem;
+}
+
+.auth-divider {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 16px 0;
+  position: relative;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-divider::before { left: 0; }
+.auth-divider::after { right: 0; }
+
+.auth-guest-note {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+  margin: 10px 0 0;
+}
+
+/* Account menu in navbar */
+.account-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.account-email {
+  font-size: 0.85rem;
+  color: var(--muted);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Fix navbar login button */
+.navbar .btn-primary {
+  padding: 7px 16px;
+  font-size: 0.88rem;
+  border-radius: 999px;
+  color: #ffffff;
+  white-space: nowrap;
+}

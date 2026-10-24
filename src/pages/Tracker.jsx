@@ -380,3 +380,10 @@ export default function Tracker() {
               >
                 Delete all
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -53,13 +53,12 @@ export function AuthProvider({ children }) {
     setIsGuest(false);
   }
 
+  // Permanently deletes the account, profile, and all tracker entries.
   async function deleteAccount() {
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .delete()
-      .eq("id", user.id);
-    if (profileError) throw profileError;
-    await supabase.auth.signOut();
+    const { error } = await supabase.rpc("delete_my_account");
+    if (error) throw error;
+    await supabase.auth.signOut({ scope: "local" });
+    setIsGuest(false);
   }
 
   function continueAsGuest() {

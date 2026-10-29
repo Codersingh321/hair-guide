@@ -1,20 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { questions, causes } from "../data/checkerData.js";
-import { profileQuestions, extraConcerns, tips } from "../data/profileData.js";
-import {
-  getVisibleQuestions,
-  calculateResults,
-  getTips,
-} from "../utils/scoring.js";
-
-const RANK_LABELS = ["Most likely", "Also possible", "Less likely"];
-const COST_LABELS = { free: "Free", low: "Low cost", medium: "Costs more" };
-const EVIDENCE_LABELS = {
-  strong: { text: "Well supported", className: "badge badge-strong" },
-  limited: { text: "Limited evidence", className: "badge badge-limited" },
-  weak: { text: "Little or no evidence", className: "badge badge-weak" },
-};
+import { questions } from "../data/checkerData.js";
+import { profileQuestions, extraConcerns } from "../data/profileData.js";
+import { getVisibleQuestions } from "../utils/scoring.js";
+import ResultsView from "../components/ResultsView.jsx";
 
 const emptyProfile = { diet: "", place: "", budget: "", extras: [], note: "" };
 
@@ -153,102 +141,14 @@ export default function SymptomChecker() {
 
   // ---------- Stage 3: results ----------
   if (stage === "results") {
-    const { ranked, redFlags } = calculateResults(
-      visible,
-      answers,
-      causes,
-      profile
-    );
-    const personalTips = getTips(tips, profile, ranked, answers.concern);
-
     return (
-      <div>
-        <h1>Your results</h1>
-        <p className="summary">
-          These are possibilities based on your answers, not a diagnosis.
-        </p>
-
-        {redFlags.length > 0 && (
-          <div className="red-flags">
-            <h3>Please see a doctor about:</h3>
-            <ul>
-              {redFlags.map((flag, index) => (
-                <li key={index}>{flag}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {ranked.length === 0 ? (
-          <div className="card">
-            <p>
-              Your answers don't point to a common cause we can explain here.
-              Please check with a doctor or dermatologist.
-            </p>
-          </div>
-        ) : (
-          ranked.map((cause, index) => (
-            <div className="card" key={cause.id}>
-              <span className="badge badge-strong">{RANK_LABELS[index]}</span>
-              <h2 className="cause-title">{cause.title}</h2>
-              <p>{cause.description}</p>
-              <h3>General care steps</h3>
-              <ul className="care-list">
-                {cause.care.map((item, i) => (
-                  <li key={i}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          ))
-        )}
-
-        {personalTips.length > 0 && (
-          <div>
-            <h2>Tips for your situation</h2>
-            <p className="summary">Cheapest options come first.</p>
-            {personalTips.map((tip) => {
-              const evidence = tip.evidence && EVIDENCE_LABELS[tip.evidence];
-              return (
-                <div className="card tip-card" key={tip.id}>
-                  <span className="badge badge-cost">{COST_LABELS[tip.cost]}</span>
-                  {evidence && (
-                    <span className={evidence.className}>{evidence.text}</span>
-                  )}
-                  <p>{tip.text}</p>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {profile.note.trim() && (
-          <div className="user-note">
-            <strong>Your note:</strong> {profile.note}
-            <br />
-            <small>
-              We don't analyse notes. Mention this to a doctor if you see one.
-            </small>
-          </div>
-        )}
-
-        <div className="disclaimer-box">
-          Educational information only. It is not medical advice and does not
-          replace a doctor or dermatologist.
-        </div>
-
-        <div className="result-actions">
-          <button onClick={restart}>Start again</button>
-          <button className="link-btn" onClick={goBack}>
-            ← Change my answers
-          </button>
-          <Link to="/learn" className="btn btn-secondary">
-            Read the Learn pages
-          </Link>
-          <Link to="/tracker" className="btn btn-secondary">
-            Track my progress
-          </Link>
-        </div>
-      </div>
+      <ResultsView
+        visible={visible}
+        answers={answers}
+        profile={profile}
+        onRestart={restart}
+        onBack={goBack}
+      />
     );
   }
 

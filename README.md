@@ -3,7 +3,7 @@
 A free, evidence-labelled guide to hair fall, early greying, and scalp care.
 Built to help people understand their hair problem before spending money.
 
-**Live site:** https://hair-guide-hazel.vercel.app/
+**Live site:** https://hairally.in
 
 ## Features
 

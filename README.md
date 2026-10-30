@@ -33,3 +33,7 @@ in `src/data`, so content can be edited without touching page code.
 
 Educational information only. Not medical advice. The questions and scores
 are a draft and have not been clinically reviewed.
+
+## Contact
+
+Feedback and data requests: feedbackhere@hairally.in

@@ -1,8 +1,5 @@
 import { Link } from "react-router-dom";
-import { SITE_NAME } from "../config.js";
-
-// Replace this with an email address you check regularly.
-const CONTACT_EMAIL = "your-email@example.com";
+import { SITE_NAME, CONTACT_EMAIL } from "../config.js";
 
 export default function Privacy() {
   return (
@@ -32,7 +29,10 @@ export default function Privacy() {
       <h3>Account mode: what we store</h3>
       <ul className="care-list">
         <li>Your email address and your password (stored in encrypted form).</li>
-        <li>Your tracker entries: date, hair count, scalp condition, and any note you add.</li>
+        <li>
+          Your tracker entries: date, hair count, scalp condition, and any note
+          you add.
+        </li>
         <li>
           A record of your consent: the time you agreed, that you confirmed you
           are 18 or older, and the version of this page you agreed to.
@@ -42,28 +42,32 @@ export default function Privacy() {
       <h3>What we never store</h3>
       <ul className="care-list">
         <li>
-          Your symptom checker answers, and your age group, sex, diet, place,
-          and budget answers. They are used only in your browser to show your
-          results, in both guest and account mode.
+          Your symptom checker answers, and your age group, gender, diet,
+          place, and budget answers. They are used only in your browser to show
+          your results, in both guest and account mode.
         </li>
         <li>Your notes on the symptom checker profile screen.</li>
       </ul>
 
-      <h3>Who helps us run the site</h3>
-      <p>These services process data on our behalf. We do not sell your data or use it for advertising.</p>
-      <ul className="care-list">
-        <li>Vercel hosts the website and may record basic visit details such as your IP address.</li>
-        <li>Supabase stores account data in a database located in Mumbai, India.</li>
-        <li>Resend sends the confirmation and password emails to your address.</li>
-      </ul>
+      <h3>Service providers</h3>
+      <p>
+        We use trusted service providers to host the website, store account
+        data securely in India, and send emails such as your confirmation
+        email. They handle data only to provide these services for us. They
+        may record basic technical details of a visit, such as an IP address.
+        We do not sell your data or use it for advertising, and we do not add
+        advertising or tracking tools of our own.
+      </p>
       <p>
         When you log in, your browser keeps a login session in its local
-        storage. We do not add advertising or tracking tools of our own.
+        storage on your device.
       </p>
 
       <h3>Your choices</h3>
       <ul className="care-list">
-        <li>You can export your tracker data at any time from the Tracker page.</li>
+        <li>
+          You can export your tracker data at any time from the Tracker page.
+        </li>
         <li>
           You can permanently delete your account, your email, and all your
           tracker entries from <Link to="/account">Account settings</Link>.
@@ -84,7 +88,8 @@ export default function Privacy() {
 
       <h3>Contact</h3>
       <p>
-        Questions or requests about your data: <strong>{CONTACT_EMAIL}</strong>
+        Feedback, questions, requests, or complaints about your data:{" "}
+        <a href={"mailto:" + CONTACT_EMAIL}>{CONTACT_EMAIL}</a>
       </p>
 
       <h3>Not medical advice</h3>

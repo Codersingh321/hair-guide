@@ -10,7 +10,7 @@ import Account from "./pages/Account.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 import logo from "./assets/hairally-logo-800.png";
-import { SITE_NAME } from "./config.js";
+import { SITE_NAME, CONTACT_EMAIL } from "./config.js";
 import "./App.css";
 
 function AccountMenu() {
@@ -146,6 +146,8 @@ export default function App() {
         dermatologist for diagnosis and treatment.
         <br />
         <Link to="/privacy">Privacy</Link>
+        {" · "}
+        <a href={"mailto:" + CONTACT_EMAIL}>Feedback: {CONTACT_EMAIL}</a>
       </footer>
 
       <nav className="bottom-nav">

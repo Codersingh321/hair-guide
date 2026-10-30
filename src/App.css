@@ -1570,3 +1570,39 @@ button:disabled:hover {
   background: #fdf1f1;
   color: #9b2c2c;
 }
+/* Keep the footer clear of the fixed bottom nav on phones */
+@media (max-width: 860px) {
+  .content {
+    padding-bottom: 20px;
+  }
+
+  .footer {
+    padding-bottom: calc(56px + 24px + env(safe-area-inset-bottom, 0px));
+  }
+}
+/* Footer: separate the disclaimer from the links */
+.footer {
+  line-height: 1.6;
+  padding-top: 28px;
+}
+
+.footer br {
+  display: block;
+  content: "";
+  margin-top: 14px;
+}
+
+.footer a {
+  display: inline-block;
+  margin: 0 8px;
+  padding: 4px 2px;
+  color: var(--primary-dark);
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  overflow-wrap: anywhere;
+}
+
+.footer a:hover {
+  border-bottom-color: var(--primary);
+}

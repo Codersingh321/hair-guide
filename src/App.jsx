@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Routes, Route, NavLink, Link, useNavigate } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import SymptomChecker from "./pages/SymptomChecker.jsx";
@@ -15,22 +16,70 @@ import "./App.css";
 function AccountMenu() {
   const { user, isGuest, signOut } = useAuth();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  // Close the menu on an outside click or the Escape key
+  useEffect(() => {
+    function onClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    function onKey(e) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  function close() {
+    setOpen(false);
+  }
 
   async function handleSignOut() {
+    close();
     await signOut();
     navigate("/");
   }
 
   if (user) {
+    const initial = (user.email || "?").charAt(0).toUpperCase();
     return (
-      <div className="account-menu">
-        <span className="account-email">{user.email}</span>
-        <button type="button" className="link-btn" onClick={handleSignOut}>
-          Log out
+      <div className="account-dd" ref={ref}>
+        <button
+          type="button"
+          className="account-trigger"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+        >
+          <span className="avatar">{initial}</span>
+          <span className="chev" aria-hidden="true">▾</span>
         </button>
-        <Link to="/account" className="link-btn">
-          Settings
-        </Link>
+
+        {open && (
+          <div className="dd-panel" role="menu">
+            <div className="dd-head">
+              <span className="dd-label">Signed in as</span>
+              <span className="dd-email">{user.email}</span>
+            </div>
+            <Link to="/account" role="menuitem" className="dd-item" onClick={close}>
+              Account settings
+            </Link>
+            <Link to="/tracker" role="menuitem" className="dd-item" onClick={close}>
+              My tracker
+            </Link>
+            <Link to="/privacy" role="menuitem" className="dd-item" onClick={close}>
+              Privacy
+            </Link>
+            <button type="button" role="menuitem" className="dd-item dd-logout" onClick={handleSignOut}>
+              Log out
+            </button>
+          </div>
+        )}
       </div>
     );
   }

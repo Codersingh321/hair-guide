@@ -1,10 +1,22 @@
 import { useState } from "react";
-import { questions } from "../data/checkerData.js";
+import { questions } from "../data/questions.js";
 import { profileQuestions, extraConcerns } from "../data/profileData.js";
+import { demographicQuestions } from "../data/profileExtra.js";
 import { getVisibleQuestions } from "../utils/scoring.js";
 import ResultsView from "../components/ResultsView.jsx";
 
-const emptyProfile = { diet: "", place: "", budget: "", extras: [], note: "" };
+const emptyProfile = {
+  ageGroup: "",
+  sex: "",
+  diet: "",
+  place: "",
+  budget: "",
+  extras: [],
+  note: "",
+};
+
+// Age and sex come first, then diet, place, and budget.
+const allProfileQuestions = [...demographicQuestions, ...profileQuestions];
 
 export default function SymptomChecker() {
   const [stage, setStage] = useState("profile");
@@ -12,7 +24,7 @@ export default function SymptomChecker() {
   const [answers, setAnswers] = useState({});
   const [step, setStep] = useState(0);
 
-  const visible = getVisibleQuestions(questions, answers);
+  const visible = getVisibleQuestions(questions, answers, profile);
   const current = visible[step];
 
   function pickProfile(id, value) {
@@ -38,7 +50,7 @@ export default function SymptomChecker() {
     }
 
     setAnswers(newAnswers);
-    const newVisible = getVisibleQuestions(questions, newAnswers);
+    const newVisible = getVisibleQuestions(questions, newAnswers, profile);
 
     if (step + 1 >= newVisible.length) {
       setStage("results");
@@ -67,19 +79,25 @@ export default function SymptomChecker() {
 
   // ---------- Stage 1: profile ----------
   if (stage === "profile") {
-    const ready = profile.diet && profile.place && profile.budget;
+    const ready =
+      profile.ageGroup &&
+      profile.sex &&
+      profile.diet &&
+      profile.place &&
+      profile.budget;
 
     return (
       <div className="card">
         <h1 className="question">A little about you</h1>
         <p className="summary">
-          This helps us make tips that fit your food, place, and budget.
+          This helps us ask the right questions and make tips that fit you.
           Everything stays in your browser. Nothing is sent or saved.
         </p>
 
-        {profileQuestions.map((q) => (
+        {allProfileQuestions.map((q) => (
           <fieldset className="profile-group" key={q.id}>
             <legend>{q.text}</legend>
+            {q.hint && <p className="hint">{q.hint}</p>}
             <div className="chip-row">
               {q.options.map((opt) => (
                 <button

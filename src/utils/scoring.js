@@ -1,8 +1,8 @@
 const COST_ORDER = { free: 0, low: 1, medium: 2 };
 
-// Returns only the questions that should be shown for the current answers.
-export function getVisibleQuestions(questions, answers) {
-  return questions.filter((q) => !q.showIf || q.showIf(answers));
+// Returns only the questions that should be shown for these answers and profile.
+export function getVisibleQuestions(questions, answers, profile = {}) {
+  return questions.filter((q) => !q.showIf || q.showIf(answers, profile));
 }
 
 // Extra points that come from the profile screen.
@@ -16,7 +16,12 @@ export function getProfileScores(profile, concern) {
   const grey = concern === "greying";
   const scalp = concern === "scalp";
   const extras = profile.extras || [];
+  const age = profile.ageGroup;
+  const sex = profile.sex;
+  const older = age === "46-60" || age === "60+";
+  const adult = age === "18-25" || age === "26-35" || age === "36-45";
 
+  // Diet
   if (profile.diet === "vegan") {
     if (hairFall) add("nutrition", 2);
     if (grey) add("greyCheck", 2);
@@ -26,10 +31,20 @@ export function getProfileScores(profile, concern) {
     if (grey) add("greyCheck", 1);
   }
 
+  // Things the person noticed
   if (extras.includes("itching") && (hairFall || scalp)) add("scalp", 1);
   if (extras.includes("oily") && (hairFall || scalp)) add("scalp", 1);
   if (extras.includes("breakage") && hairFall) add("styling", 2);
   if (extras.includes("dry") && hairFall) add("styling", 1);
+
+  // Age and sex
+  if (concern === "thinning" && sex === "male" && adult) add("pattern", 1);
+  if (hairFall && sex === "female" && older) {
+    add("hormonal", 1);
+    add("pattern", 1);
+  }
+  if (hairFall && age === "60+") add("pattern", 1);
+  if (grey && older) add("greyGenetic", 2);
 
   return scores;
 }

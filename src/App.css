@@ -1455,3 +1455,118 @@ button:disabled:hover {
     padding-bottom: 68px;
   }
 }
+.hint {
+  font-size: 0.86rem;
+  color: var(--muted);
+  margin: -2px 0 10px;
+}
+
+.result-extra {
+  color: var(--muted);
+  font-size: 0.98rem;
+  margin-top: 12px;
+}
+/* ===== Account dropdown (opens on the right) ===== */
+.account-dd {
+  position: relative;
+}
+
+.account-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.account-trigger:hover {
+  background: #d6e8e1;
+}
+
+.account-trigger .avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.account-trigger .chev {
+  font-size: 0.8rem;
+}
+
+.dd-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 260px;
+  max-width: calc(100vw - 24px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(18, 35, 30, 0.14);
+  padding: 8px;
+  z-index: 200;
+  animation: fadeUp 0.15s ease both;
+}
+
+.dd-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px 12px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dd-label {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.dd-email {
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.dd-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  color: var(--text);
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dd-item:hover {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.dd-logout {
+  margin-top: 6px;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 8px 8px;
+  padding-top: 12px;
+  color: #9b2c2c;
+}
+
+.dd-logout:hover {
+  background: #fdf1f1;
+  color: #9b2c2c;
+}

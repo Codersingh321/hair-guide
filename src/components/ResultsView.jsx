@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { causes } from "../data/checkerData.js";
 import { tips } from "../data/profileData.js";
 import { resultsContent, supplementNote } from "../data/resultsContent.js";
+import { sexExtras } from "../data/profileExtra.js";
 import { calculateResults, getTips } from "../utils/scoring.js";
 
 const RANK_LABELS = ["Most likely", "Also possible", "Less likely"];
@@ -112,6 +113,12 @@ export default function ResultsView({
     avoid: [],
   };
 
+  // Short extra line for women or men, when we have one for this cause
+  const extra = sexExtras[cause.id]?.[profile.sex];
+  const solutions = extra?.solution
+    ? [extra.solution, ...content.solutions]
+    : content.solutions;
+
   const personalTips = getTips(tips, profile, [cause], answers.concern);
   const tipsFor = (section) =>
     personalTips.filter((t) => (TIP_SECTION[t.id] ?? "solutions") === section);
@@ -129,6 +136,14 @@ export default function ResultsView({
       <p className="summary">
         These are possibilities based on your answers, not a diagnosis.
       </p>
+
+      {profile.ageGroup === "u18" && (
+        <div className="note-callout" style={{ marginBottom: 16 }}>
+          You are under 18, so please talk to a parent or guardian and a
+          doctor before trying any product, medicine, or supplement. Hair
+          changes at your age are best checked in person.
+        </div>
+      )}
 
       {redFlags.length > 0 && (
         <div className="red-flags">
@@ -180,12 +195,17 @@ export default function ResultsView({
 
         <div className="result-body" key={cause.id + tab}>
           {tab === "problem" && (
-            <p className="result-lead">{content.problem}</p>
+            <div>
+              <p className="result-lead">{content.problem}</p>
+              {extra?.problem && (
+                <p className="result-lead result-extra">{extra.problem}</p>
+              )}
+            </div>
           )}
 
           {tab === "solutions" && (
             <div>
-              <BulletList items={content.solutions} />
+              <BulletList items={solutions} />
               <TipList tips={tipsFor("solutions")} />
             </div>
           )}
@@ -245,7 +265,7 @@ export default function ResultsView({
 
       <div className="result-actions">
         <button onClick={onRestart}>Start again</button>
-       <button type="button" className="btn btn-secondary" onClick={onBack}>
+        <button type="button" className="btn btn-secondary" onClick={onBack}>
           ← Change my answers
         </button>
         <Link to="/learn" className="btn btn-secondary">

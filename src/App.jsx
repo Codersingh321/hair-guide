@@ -5,6 +5,7 @@ import Learn from "./pages/Learn.jsx";
 import Tracker from "./pages/Tracker.jsx";
 import Privacy from "./pages/Privacy.jsx";
 import Login from "./pages/Login.jsx";
+import Account from "./pages/Account.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 import logo from "./assets/hairally-logo-800.png";
@@ -24,8 +25,12 @@ function AccountMenu() {
     return (
       <div className="account-menu">
         <span className="account-email">{user.email}</span>
-        <button className="link-btn" onClick={handleSignOut}>Log out</button>
-        <Link to="/account" className="link-btn">Settings</Link>
+        <button type="button" className="link-btn" onClick={handleSignOut}>
+          Log out
+        </button>
+        <Link to="/account" className="link-btn">
+          Settings
+        </Link>
       </div>
     );
   }
@@ -34,7 +39,7 @@ function AccountMenu() {
     return (
       <div className="account-menu">
         <span className="account-email">Guest</span>
-        <Link to="/login" className="btn btn-primary" style={{ padding: "6px 14px", fontSize: "0.9rem" }}>
+        <Link to="/login" className="btn btn-primary">
           Save my data
         </Link>
       </div>
@@ -42,7 +47,7 @@ function AccountMenu() {
   }
 
   return (
-    <Link to="/login" className="btn btn-primary" style={{ padding: "6px 14px", fontSize: "0.9rem" }}>
+    <Link to="/login" className="btn btn-primary">
       Log in
     </Link>
   );
@@ -66,7 +71,7 @@ export default function App() {
           <img src={logo} alt={SITE_NAME} className="brand-logo" />
         </Link>
         <nav>
-          <NavLink to="/">Home</NavLink>
+          <NavLink to="/" end>Home</NavLink>
           <NavLink to="/check">Symptom Checker</NavLink>
           <NavLink to="/learn">Learn</NavLink>
           <NavLink to="/tracker">Tracker</NavLink>
@@ -82,6 +87,7 @@ export default function App() {
           <Route path="/tracker" element={<Tracker />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/account" element={<Account />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
@@ -92,6 +98,13 @@ export default function App() {
         <br />
         <Link to="/privacy">Privacy</Link>
       </footer>
+
+      <nav className="bottom-nav">
+        <NavLink to="/" end>Home</NavLink>
+        <NavLink to="/check">Check</NavLink>
+        <NavLink to="/learn">Learn</NavLink>
+        <NavLink to="/tracker">Tracker</NavLink>
+      </nav>
     </div>
   );
 }

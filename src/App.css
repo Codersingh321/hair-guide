@@ -1606,3 +1606,62 @@ button:disabled:hover {
 .footer a:hover {
   border-bottom-color: var(--primary);
 }
+/* ===== Language toggle and Hindi text ===== */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.lang-toggle button {
+  background: none;
+  color: var(--muted);
+  border: 0;
+  border-radius: 0;
+  padding: 0 12px;
+  min-height: 34px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.lang-toggle button:hover {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.lang-toggle button.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Use system Devanagari fonts for Hindi (no extra download) */
+html:lang(hi) body,
+html:lang(hi) h1,
+html:lang(hi) h2,
+html:lang(hi) h3,
+html:lang(hi) button,
+html:lang(hi) input,
+html:lang(hi) textarea {
+  font-family: "Nirmala UI", "Noto Sans Devanagari", "Mangal", system-ui,
+    sans-serif;
+}
+
+html:lang(hi) h1,
+html:lang(hi) h2,
+html:lang(hi) h3 {
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+html:lang(hi) body {
+  line-height: 1.7;
+}

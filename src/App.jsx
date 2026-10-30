@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Routes, Route, NavLink, Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Home from "./pages/Home.jsx";
 import SymptomChecker from "./pages/SymptomChecker.jsx";
 import Learn from "./pages/Learn.jsx";
@@ -9,11 +10,43 @@ import Login from "./pages/Login.jsx";
 import Account from "./pages/Account.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
+import { setLanguage } from "./i18n/index.js";
 import logo from "./assets/hairally-logo-800.png";
 import { SITE_NAME, CONTACT_EMAIL } from "./config.js";
 import "./App.css";
 
+function LanguageToggle() {
+  const { t, i18n } = useTranslation();
+  const current = i18n.language === "hi" ? "hi" : "en";
+
+  return (
+    <div
+      className="lang-toggle"
+      role="group"
+      aria-label={t("lang.label", "Language")}
+    >
+      <button
+        type="button"
+        className={current === "en" ? "active" : ""}
+        aria-pressed={current === "en"}
+        onClick={() => setLanguage("en")}
+      >
+        EN
+      </button>
+      <button
+        type="button"
+        className={current === "hi" ? "active" : ""}
+        aria-pressed={current === "hi"}
+        onClick={() => setLanguage("hi")}
+      >
+        हिं
+      </button>
+    </div>
+  );
+}
+
 function AccountMenu() {
+  const { t } = useTranslation();
   const { user, isGuest, signOut } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -63,20 +96,27 @@ function AccountMenu() {
         {open && (
           <div className="dd-panel" role="menu">
             <div className="dd-head">
-              <span className="dd-label">Signed in as</span>
+              <span className="dd-label">
+                {t("account.signedIn", "Signed in as")}
+              </span>
               <span className="dd-email">{user.email}</span>
             </div>
             <Link to="/account" role="menuitem" className="dd-item" onClick={close}>
-              Account settings
+              {t("account.settings", "Account settings")}
             </Link>
             <Link to="/tracker" role="menuitem" className="dd-item" onClick={close}>
-              My tracker
+              {t("account.tracker", "My tracker")}
             </Link>
             <Link to="/privacy" role="menuitem" className="dd-item" onClick={close}>
-              Privacy
+              {t("account.privacy", "Privacy")}
             </Link>
-            <button type="button" role="menuitem" className="dd-item dd-logout" onClick={handleSignOut}>
-              Log out
+            <button
+              type="button"
+              role="menuitem"
+              className="dd-item dd-logout"
+              onClick={handleSignOut}
+            >
+              {t("account.logout", "Log out")}
             </button>
           </div>
         )}
@@ -87,9 +127,9 @@ function AccountMenu() {
   if (isGuest) {
     return (
       <div className="account-menu">
-        <span className="account-email">Guest</span>
+        <span className="account-email">{t("account.guest", "Guest")}</span>
         <Link to="/login" className="btn btn-primary">
-          Save my data
+          {t("account.save", "Save my data")}
         </Link>
       </div>
     );
@@ -97,18 +137,19 @@ function AccountMenu() {
 
   return (
     <Link to="/login" className="btn btn-primary">
-      Log in
+      {t("account.login", "Log in")}
     </Link>
   );
 }
 
 export default function App() {
+  const { t } = useTranslation();
   const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
       <div style={{ display: "grid", placeItems: "center", height: "100vh" }}>
-        <p>Loading...</p>
+        <p>{t("loading", "Loading...")}</p>
       </div>
     );
   }
@@ -120,12 +161,15 @@ export default function App() {
           <img src={logo} alt={SITE_NAME} className="brand-logo" />
         </Link>
         <nav>
-          <NavLink to="/" end>Home</NavLink>
-          <NavLink to="/check">Symptom Checker</NavLink>
-          <NavLink to="/learn">Learn</NavLink>
-          <NavLink to="/tracker">Tracker</NavLink>
+          <NavLink to="/" end>{t("nav.home", "Home")}</NavLink>
+          <NavLink to="/check">{t("nav.check", "Symptom Checker")}</NavLink>
+          <NavLink to="/learn">{t("nav.learn", "Learn")}</NavLink>
+          <NavLink to="/tracker">{t("nav.tracker", "Tracker")}</NavLink>
         </nav>
-        <AccountMenu />
+        <div className="navbar-right">
+          <LanguageToggle />
+          <AccountMenu />
+        </div>
       </header>
 
       <main className="content">
@@ -142,19 +186,23 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        Educational information only. Not medical advice. See a doctor or
-        dermatologist for diagnosis and treatment.
+        {t(
+          "footer.disclaimer",
+          "Educational information only. Not medical advice. See a doctor or dermatologist for diagnosis and treatment."
+        )}
         <br />
-        <Link to="/privacy">Privacy</Link>
+        <Link to="/privacy">{t("footer.privacy", "Privacy")}</Link>
         {" · "}
-        <a href={"mailto:" + CONTACT_EMAIL}>Feedback: {CONTACT_EMAIL}</a>
+        <a href={"mailto:" + CONTACT_EMAIL}>
+          {t("footer.feedback", "Feedback")}: {CONTACT_EMAIL}
+        </a>
       </footer>
 
       <nav className="bottom-nav">
-        <NavLink to="/" end>Home</NavLink>
-        <NavLink to="/check">Check</NavLink>
-        <NavLink to="/learn">Learn</NavLink>
-        <NavLink to="/tracker">Tracker</NavLink>
+        <NavLink to="/" end>{t("nav.home", "Home")}</NavLink>
+        <NavLink to="/check">{t("bnav.check", "Check")}</NavLink>
+        <NavLink to="/learn">{t("nav.learn", "Learn")}</NavLink>
+        <NavLink to="/tracker">{t("nav.tracker", "Tracker")}</NavLink>
       </nav>
     </div>
   );

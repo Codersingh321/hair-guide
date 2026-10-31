@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import { lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation, Trans } from "react-i18next";
 import { useAuth } from "../context/AuthContext.jsx";
 import { supabase } from "../lib/supabase.js";
 import {
@@ -17,7 +17,7 @@ import {
 
 const RechartsComponents = lazy(() =>
   import("recharts").then((m) => ({
-    default: function Chart({ data }) {
+    default: function Chart({ data, label }) {
       return (
         <m.ResponsiveContainer width="100%" height={260}>
           <m.LineChart data={data}>
@@ -28,6 +28,7 @@ const RechartsComponents = lazy(() =>
             <m.Line
               type="monotone"
               dataKey="shedding"
+              name={label}
               stroke="#2f6f5e"
               strokeWidth={2}
               dot={{ r: 3 }}
@@ -46,11 +47,18 @@ const SCALP_OPTIONS = [
   { value: "oily", label: "Oily" },
 ];
 
+const TREND_DEFAULT = {
+  steady: "about the same",
+  lower: "lower",
+  higher: "higher",
+};
+
 function emptyForm() {
   return { date: todayString(), shedding: "", scalp: "normal", note: "" };
 }
 
 export default function Tracker() {
+  const { t } = useTranslation();
   const { user, isLoggedIn } = useAuth();
   const [entries, setEntries] = useState([]);
   const [form, setForm] = useState(emptyForm());
@@ -58,7 +66,7 @@ export default function Tracker() {
   const [loading, setLoading] = useState(true);
   const [imported, setImported] = useState(false);
 
-  // Load entries when component mounts or user changes
+  // Load entries when the page opens or the user changes
   const loadEntries = useCallback(async () => {
     setLoading(true);
     try {
@@ -67,7 +75,12 @@ export default function Tracker() {
         if (!imported) {
           const count = await importLocalToRemote(supabase, user.id);
           if (count > 0) {
-            setMessage(`Imported ${count} entries from your browser.`);
+            setMessage(
+              t("tr.msg.imported", {
+                defaultValue: "Imported {{n}} entries from your browser.",
+                n: count,
+              })
+            );
           }
           setImported(true);
         }
@@ -77,17 +90,23 @@ export default function Tracker() {
         setEntries(loadLocalEntries());
       }
     } catch (err) {
-      setMessage("Could not load entries: " + err.message);
+      setMessage(
+        t("tr.msg.loadFail", {
+          defaultValue: "Could not load entries: {{error}}",
+          error: err.message,
+        })
+      );
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn, user, imported]);
 
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
 
-  // Save local entries to localStorage whenever they change (guest only)
+  // Save to localStorage whenever entries change (guest only)
   useEffect(() => {
     if (!isLoggedIn) {
       saveLocalEntries(entries);
@@ -100,16 +119,26 @@ export default function Tracker() {
     date: e.date.slice(5),
     shedding: e.shedding,
   }));
+  const trendLabel = summary
+    ? t(`tr.trend.${summary.trend}`, TREND_DEFAULT[summary.trend])
+    : "";
 
   async function handleSubmit(e) {
     e.preventDefault();
     const count = Number(form.shedding);
-    if (form.shedding === "" || Number.isNaN(count) || count < 0 || count > 1000) {
-      setMessage("Enter a shedding count between 0 and 1000.");
+    if (
+      form.shedding === "" ||
+      Number.isNaN(count) ||
+      count < 0 ||
+      count > 1000
+    ) {
+      setMessage(
+        t("tr.msg.range", "Enter a shedding count between 0 and 1000.")
+      );
       return;
     }
     if (form.date > todayString()) {
-      setMessage("The date can't be in the future.");
+      setMessage(t("tr.msg.future", "The date can't be in the future."));
       return;
     }
 
@@ -130,9 +159,14 @@ export default function Tracker() {
         setEntries([...others, entry]);
       }
       setForm(emptyForm());
-      setMessage("Saved.");
+      setMessage(t("tr.msg.saved", "Saved."));
     } catch (err) {
-      setMessage("Could not save: " + err.message);
+      setMessage(
+        t("tr.msg.saveFail", {
+          defaultValue: "Could not save: {{error}}",
+          error: err.message,
+        })
+      );
     }
   }
 
@@ -143,24 +177,40 @@ export default function Tracker() {
       scalp: entry.scalp,
       note: entry.note,
     });
-    setMessage("Editing " + entry.date + ". Press Save to update it.");
+    setMessage(
+      t("tr.msg.editing", {
+        defaultValue: "Editing {{date}}. Press Save to update it.",
+        date: entry.date,
+      })
+    );
   }
 
   async function deleteEntry(date) {
     try {
       if (isLoggedIn && user) {
         await deleteRemoteEntry(supabase, user.id, date);
-        setEntries((prev) => prev.filter((x) => x.date !== date));
-      } else {
-        setEntries((prev) => prev.filter((x) => x.date !== date));
       }
+      setEntries((prev) => prev.filter((x) => x.date !== date));
     } catch (err) {
-      setMessage("Could not delete: " + err.message);
+      setMessage(
+        t("tr.msg.delFail", {
+          defaultValue: "Could not delete: {{error}}",
+          error: err.message,
+        })
+      );
     }
   }
 
   async function clearAll() {
-    if (!window.confirm("Delete all tracker entries? This can't be undone.")) return;
+    if (
+      !window.confirm(
+        t(
+          "tr.confirm.all",
+          "Delete all tracker entries? This can't be undone."
+        )
+      )
+    )
+      return;
     try {
       if (isLoggedIn && user) {
         for (const e of entries) {
@@ -168,9 +218,14 @@ export default function Tracker() {
         }
       }
       setEntries([]);
-      setMessage("All entries deleted.");
+      setMessage(t("tr.msg.allDeleted", "All entries deleted."));
     } catch (err) {
-      setMessage("Could not delete all: " + err.message);
+      setMessage(
+        t("tr.msg.delAllFail", {
+          defaultValue: "Could not delete all: {{error}}",
+          error: err.message,
+        })
+      );
     }
   }
 
@@ -189,35 +244,45 @@ export default function Tracker() {
   if (loading) {
     return (
       <div className="card">
-        <p className="progress-text">Loading your entries...</p>
+        <p className="progress-text">
+          {t("tr.loading", "Loading your entries...")}
+        </p>
       </div>
     );
   }
 
   return (
     <div>
-      <h1>15-Day Tracker</h1>
+      <h1>{t("tr.title", "15-Day Tracker")}</h1>
       <p className="summary">
-        Log once a day for 15 days. Hair changes slowly, so 15 days can show
-        early signs only, not final results.
+        {t(
+          "tr.intro",
+          "Log once a day for 15 days. Hair changes slowly, so 15 days can show early signs only, not final results."
+        )}
         {isLoggedIn
-          ? " Your entries sync across your devices."
-          : " Your data stays in this browser."}
+          ? t("tr.intro.synced", " Your entries sync across your devices.")
+          : t("tr.intro.local", " Your data stays in this browser.")}
       </p>
 
       {!isLoggedIn && (
         <div className="guest-banner">
-          Guest mode: data is saved in this browser only. If you clear your
-          browser data, it is erased.{" "}
-          <Link to="/login">Save my data across devices →</Link>
+          {t(
+            "tr.guest",
+            "Guest mode: data is saved in this browser only. If you clear your browser data, it is erased."
+          )}{" "}
+          <Link to="/login">
+            {t("tr.guest.link", "Save my data across devices →")}
+          </Link>
         </div>
       )}
 
       <form className="card" onSubmit={handleSubmit}>
-        <h2 className="cause-title">Add today's log</h2>
+        <h2 className="cause-title">
+          {t("tr.form.title", "Add today's log")}
+        </h2>
 
         <label className="field">
-          <span>Date</span>
+          <span>{t("tr.date", "Date")}</span>
           <input
             type="date"
             value={form.date}
@@ -228,13 +293,18 @@ export default function Tracker() {
         </label>
 
         <label className="field">
-          <span>Hairs noticed shedding today (comb, shower, pillow)</span>
+          <span>
+            {t(
+              "tr.shedding",
+              "Hairs noticed shedding today (comb, shower, pillow)"
+            )}
+          </span>
           <input
             type="number"
             min="0"
             max="1000"
             inputMode="numeric"
-            placeholder="For example: 60"
+            placeholder={t("tr.shedding.ph", "For example: 60")}
             value={form.shedding}
             onChange={(e) => setForm({ ...form, shedding: e.target.value })}
             required
@@ -242,7 +312,7 @@ export default function Tracker() {
         </label>
 
         <fieldset className="profile-group">
-          <legend>Scalp today</legend>
+          <legend>{t("tr.scalp", "Scalp today")}</legend>
           <div className="chip-row">
             {SCALP_OPTIONS.map((opt) => (
               <button
@@ -251,37 +321,47 @@ export default function Tracker() {
                 className={"chip" + (form.scalp === opt.value ? " selected" : "")}
                 onClick={() => setForm({ ...form, scalp: opt.value })}
               >
-                {opt.label}
+                {t(`tr.scalp.${opt.value}`, opt.label)}
               </button>
             ))}
           </div>
         </fieldset>
 
         <label className="field">
-          <span>Note (optional)</span>
+          <span>{t("tr.note", "Note (optional)")}</span>
           <input
             type="text"
             maxLength={120}
-            placeholder="For example: washed hair today"
+            placeholder={t("tr.note.ph", "For example: washed hair today")}
             value={form.note}
             onChange={(e) => setForm({ ...form, note: e.target.value })}
           />
         </label>
 
-        <button type="submit">Save entry</button>
+        <button type="submit">{t("tr.save", "Save entry")}</button>
         {message && <p className="form-message">{message}</p>}
       </form>
 
       {entries.length === 0 ? (
         <div className="card">
-          <p>No entries yet. Add your first log above to start your chart.</p>
+          <p>
+            {t(
+              "tr.empty",
+              "No entries yet. Add your first log above to start your chart."
+            )}
+          </p>
         </div>
       ) : (
         <div>
           <div className="card">
-            <h2 className="cause-title">Shedding over time</h2>
+            <h2 className="cause-title">
+              {t("tr.chart.title", "Shedding over time")}
+            </h2>
             <p className="progress-text">
-              {entries.length} of 15 days logged
+              {t("tr.chart.logged", {
+                defaultValue: "{{n}} of 15 days logged",
+                n: entries.length,
+              })}
             </p>
             <div className="progress">
               <div
@@ -293,50 +373,70 @@ export default function Tracker() {
             </div>
             <div className="chart-box">
               <Suspense
-                fallback={<p className="progress-text">Loading chart...</p>}
+                fallback={
+                  <p className="progress-text">
+                    {t("tr.chart.loading", "Loading chart...")}
+                  </p>
+                }
               >
-                <RechartsComponents data={chartData} />
+                <RechartsComponents
+                  data={chartData}
+                  label={t("tr.chart.line", "Shedding")}
+                />
               </Suspense>
             </div>
           </div>
 
           <div className="card">
-            <h2 className="cause-title">What your log shows</h2>
+            <h2 className="cause-title">
+              {t("tr.show.title", "What your log shows")}
+            </h2>
             {summary ? (
               <p>
-                Average shedding in your first entries was{" "}
-                <strong>{summary.first.toFixed(0)}</strong> hairs a day. In
-                your latest entries it was{" "}
-                <strong>{summary.last.toFixed(0)}</strong> (
-                {summary.trend === "steady"
-                  ? "about the same"
-                  : summary.trend === "lower"
-                  ? "lower"
-                  : "higher"}
-                ). Day-to-day counts vary a lot, so treat this as a rough
-                signal only.
+                <Trans
+                  i18nKey="tr.show.sentence"
+                  defaults="Average shedding in your first entries was <b>{{first}}</b> hairs a day. In your latest entries it was <b>{{last}}</b> ({{trend}}). Day-to-day counts vary a lot, so treat this as a rough signal only."
+                  values={{
+                    first: summary.first.toFixed(0),
+                    last: summary.last.toFixed(0),
+                    trend: trendLabel,
+                  }}
+                  components={{ b: <strong /> }}
+                />
                 {summary.trend === "higher" &&
-                  " If shedding keeps rising, please see a doctor or dermatologist."}
+                  t(
+                    "tr.show.higher",
+                    " If shedding keeps rising, please see a doctor or dermatologist."
+                  )}
               </p>
             ) : (
-              <p>Log at least 6 days to see a comparison.</p>
+              <p>
+                {t(
+                  "tr.show.need",
+                  "Log at least 6 days to see a comparison."
+                )}
+              </p>
             )}
             <p className="progress-text">
-              Not medical advice. Counting hairs is imprecise, and a normal
-              day can be anywhere from about 50 to 100 hairs.
+              {t(
+                "tr.show.disclaimer",
+                "Not medical advice. Counting hairs is imprecise, and a normal day can be anywhere from about 50 to 100 hairs."
+              )}
             </p>
           </div>
 
           <div className="card">
-            <h2 className="cause-title">Your entries</h2>
+            <h2 className="cause-title">
+              {t("tr.entries.title", "Your entries")}
+            </h2>
             <div className="table-wrap">
               <table className="entry-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Shedding</th>
-                    <th>Scalp</th>
-                    <th>Note</th>
+                    <th>{t("tr.col.date", "Date")}</th>
+                    <th>{t("tr.col.shed", "Shedding")}</th>
+                    <th>{t("tr.col.scalp", "Scalp")}</th>
+                    <th>{t("tr.col.note", "Note")}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -345,7 +445,7 @@ export default function Tracker() {
                     <tr key={e.date}>
                       <td>{e.date}</td>
                       <td>{e.shedding}</td>
-                      <td>{e.scalp}</td>
+                      <td>{t(`tr.scalp.${e.scalp}`, e.scalp)}</td>
                       <td>{e.note}</td>
                       <td className="row-actions">
                         <button
@@ -353,14 +453,14 @@ export default function Tracker() {
                           className="link-btn"
                           onClick={() => editEntry(e)}
                         >
-                          Edit
+                          {t("tr.edit", "Edit")}
                         </button>
                         <button
                           type="button"
                           className="link-btn"
                           onClick={() => deleteEntry(e.date)}
                         >
-                          Delete
+                          {t("tr.delete", "Delete")}
                         </button>
                       </td>
                     </tr>
@@ -371,14 +471,14 @@ export default function Tracker() {
 
             <div className="result-actions">
               <button type="button" onClick={exportData}>
-                Export my data
+                {t("tr.export", "Export my data")}
               </button>
               <button
                 type="button"
                 className="danger-btn"
                 onClick={clearAll}
               >
-                Delete all
+                {t("tr.deleteAll", "Delete all")}
               </button>
             </div>
           </div>

@@ -1,9 +1,24 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useTranslation, Trans } from "react-i18next";
 import { useAuth } from "../context/AuthContext.jsx";
 import { SITE_NAME } from "../config.js";
 
+// Maps the server's English error text to a translatable key.
+function errorKey(message = "") {
+  const m = message.toLowerCase();
+  if (m.includes("invalid login")) return "auth.err.invalid";
+  if (m.includes("already registered")) return "auth.err.exists";
+  if (m.includes("not confirmed")) return "auth.err.notConfirmed";
+  if (m.includes("rate limit")) return "auth.err.rate";
+  if (m.includes("sending confirmation")) return "auth.err.sending";
+  if (m.includes("failed to fetch")) return "auth.err.network";
+  if (m.includes("something went wrong")) return "auth.err.generic";
+  return null;
+}
+
 export default function Login() {
+  const { t } = useTranslation();
   const { signIn, signUp, continueAsGuest } = useAuth();
   const navigate = useNavigate();
 
@@ -13,21 +28,24 @@ export default function Login() {
   const [is18, setIs18] = useState(false);
   const [hasConsent, setHasConsent] = useState(false);
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
+  const [info, setInfo] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    setInfo("");
+    setInfo(false);
     setLoading(true);
 
     try {
       if (mode === "signup") {
-        await signUp(email, password, { is18 });
-        setInfo(
-          "Account created. Check your email for a confirmation link, then come back to log in."
-        );
+        const result = await signUp(email, password, { is18 });
+        if (result.session) {
+          // Email confirmation is off, so the user is already logged in
+          navigate("/tracker");
+        } else {
+          setInfo(true);
+        }
       } else {
         await signIn(email, password);
         navigate("/tracker");
@@ -44,6 +62,15 @@ export default function Login() {
     navigate("/");
   }
 
+  function switchMode(next) {
+    setMode(next);
+    setError("");
+    setInfo(false);
+  }
+
+  const key = error ? errorKey(error) : null;
+  const shownError = key ? t(key, error) : error;
+
   const signupReady = is18 && hasConsent && email && password.length >= 8;
   const loginReady = email && password;
 
@@ -55,23 +82,23 @@ export default function Login() {
         <div className="auth-tabs">
           <button
             className={"auth-tab" + (mode === "login" ? " active" : "")}
-            onClick={() => { setMode("login"); setError(""); setInfo(""); }}
+            onClick={() => switchMode("login")}
             type="button"
           >
-            Log in
+            {t("auth.login", "Log in")}
           </button>
           <button
             className={"auth-tab" + (mode === "signup" ? " active" : "")}
-            onClick={() => { setMode("signup"); setError(""); setInfo(""); }}
+            onClick={() => switchMode("signup")}
             type="button"
           >
-            Create account
+            {t("auth.create", "Create account")}
           </button>
         </div>
 
         <form onSubmit={handleSubmit}>
           <label className="field">
-            <span>Email</span>
+            <span>{t("auth.email", "Email")}</span>
             <input
               type="email"
               value={email}
@@ -83,7 +110,11 @@ export default function Login() {
           </label>
 
           <label className="field">
-            <span>Password {mode === "signup" && "(at least 8 characters)"}</span>
+            <span>
+              {t("auth.password", "Password")}{" "}
+              {mode === "signup" &&
+                t("auth.password.min", "(at least 8 characters)")}
+            </span>
             <input
               type="password"
               value={password}
@@ -91,7 +122,9 @@ export default function Login() {
               placeholder="••••••••"
               required
               minLength={8}
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+              autoComplete={
+                mode === "signup" ? "new-password" : "current-password"
+              }
             />
           </label>
 
@@ -103,7 +136,9 @@ export default function Login() {
                   checked={is18}
                   onChange={(e) => setIs18(e.target.checked)}
                 />
-                <span>I am 18 years old or older.</span>
+                <span>
+                  {t("auth.consent.age", "I am 18 years old or older.")}
+                </span>
               </label>
 
               <label className="consent-row">
@@ -113,31 +148,43 @@ export default function Login() {
                   onChange={(e) => setHasConsent(e.target.checked)}
                 />
                 <span>
-                  I agree that {SITE_NAME} stores my email and tracker entries
-                  to sync them across my devices, as described in the{" "}
-                  <Link to="/privacy">Privacy page</Link>.
+                  <Trans
+                    i18nKey="auth.consent.data"
+                    defaults="I agree that {{site}} stores my email and tracker entries to sync them across my devices, as described in the <privacy>Privacy page</privacy>."
+                    values={{ site: SITE_NAME }}
+                    components={{ privacy: <Link to="/privacy" /> }}
+                  />
                 </span>
               </label>
             </div>
           )}
 
-          {error && <p className="auth-error">{error}</p>}
-          {info && <p className="auth-info">{info}</p>}
+          {error && <p className="auth-error">{shownError}</p>}
+          {info && (
+            <p className="auth-info">
+              {t(
+                "auth.info.created",
+                "Account created. Check your email for a confirmation link, then come back to log in."
+              )}
+            </p>
+          )}
 
           <button
             type="submit"
-            disabled={loading || (mode === "signup" ? !signupReady : !loginReady)}
+            disabled={
+              loading || (mode === "signup" ? !signupReady : !loginReady)
+            }
             style={{ width: "100%", marginTop: "16px" }}
           >
             {loading
-              ? "Please wait..."
+              ? t("auth.wait", "Please wait...")
               : mode === "signup"
-              ? "Create account"
-              : "Log in"}
+              ? t("auth.create", "Create account")
+              : t("auth.login", "Log in")}
           </button>
         </form>
 
-        <div className="auth-divider">or</div>
+        <div className="auth-divider">{t("auth.or", "or")}</div>
 
         <button
           type="button"
@@ -145,11 +192,13 @@ export default function Login() {
           style={{ width: "100%" }}
           onClick={handleGuest}
         >
-          Continue as guest
+          {t("auth.guest", "Continue as guest")}
         </button>
         <p className="auth-guest-note">
-          Guest data stays only in this browser. If you clear your browser
-          data, it is erased.
+          {t(
+            "auth.guestNote",
+            "Guest data stays only in this browser. If you clear your browser data, it is erased."
+          )}
         </p>
       </div>
     </div>

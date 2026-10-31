@@ -50,6 +50,7 @@ export function getProfileScores(profile, concern) {
 }
 
 // Adds up points per cause, collects red flags, and returns the top 3 causes.
+// Each red flag is { key, text } so the page can translate it by key.
 export function calculateResults(visibleQuestions, answers, causes, profile) {
   const scores = { ...getProfileScores(profile, answers.concern) };
   const redFlags = [];
@@ -67,7 +68,7 @@ export function calculateResults(visibleQuestions, answers, causes, profile) {
       }
     }
     if (option.redFlag) {
-      redFlags.push(option.redFlag);
+      redFlags.push({ key: `${q.id}.${option.value}`, text: option.redFlag });
     }
   }
 

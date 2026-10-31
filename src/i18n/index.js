@@ -12,7 +12,7 @@ function savedLanguage() {
 }
 
 // English text lives in the components as default values.
-// Hindi is loaded from hi.json only when it is needed.
+// Hindi is loaded only when it is needed.
 i18n.use(initReactI18next).init({
   resources: { en: { translation: {} } },
   lng: "en",
@@ -23,10 +23,32 @@ i18n.use(initReactI18next).init({
   react: { useSuspense: false },
 });
 
+// Hindi text files. When you add a new hi.*.json file, add one line here.
+const hindiFiles = [
+  () => import("./hi.json"),
+  () => import("./hi.checker.json"),
+  () => import("./hi.results.json"),
+];
+
 export async function setLanguage(lang) {
   if (lang === "hi" && !i18n.hasResourceBundle("hi", "translation")) {
-    const mod = await import("./hi.json");
-    i18n.addResourceBundle("hi", "translation", mod.default, true, true);
+    try {
+      const parts = await Promise.all(hindiFiles.map((load) => load()));
+      const files = parts.map((m) => m.default);
+      const merged = Object.assign({}, ...files);
+      if (import.meta.env.DEV) {
+        console.log(
+          "Hindi lines loaded per file:",
+          files.map((f) => Object.keys(f).length),
+          "total:",
+          Object.keys(merged).length
+        );
+      }
+      i18n.addResourceBundle("hi", "translation", merged, true, true);
+    } catch (err) {
+      console.error("Could not load the Hindi text:", err);
+      lang = "en";
+    }
   }
   await i18n.changeLanguage(lang);
   document.documentElement.lang = lang;

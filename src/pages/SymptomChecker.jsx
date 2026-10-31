@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { questions } from "../data/questions.js";
 import { profileQuestions, extraConcerns } from "../data/profileData.js";
 import { demographicQuestions } from "../data/profileExtra.js";
@@ -15,10 +16,11 @@ const emptyProfile = {
   note: "",
 };
 
-// Age and sex come first, then diet, place, and budget.
+// Age and gender come first, then diet, place, and budget.
 const allProfileQuestions = [...demographicQuestions, ...profileQuestions];
 
 export default function SymptomChecker() {
+  const { t } = useTranslation();
   const [stage, setStage] = useState("profile");
   const [profile, setProfile] = useState(emptyProfile);
   const [answers, setAnswers] = useState({});
@@ -26,6 +28,12 @@ export default function SymptomChecker() {
 
   const visible = getVisibleQuestions(questions, answers, profile);
   const current = visible[step];
+
+  // Translation helpers: the English text is the default value.
+  const pText = (q) => t(`p.${q.id}.text`, q.text);
+  const pOpt = (q, o) => t(`p.${q.id}.o.${o.value}`, o.label);
+  const qText = (q) => t(`q.${q.id}.text`, q.text);
+  const qOpt = (q, o) => t(`q.${q.id}.o.${o.value}`, o.label);
 
   function pickProfile(id, value) {
     setProfile({ ...profile, [id]: value });
@@ -88,16 +96,20 @@ export default function SymptomChecker() {
 
     return (
       <div className="card">
-        <h1 className="question">A little about you</h1>
+        <h1 className="question">
+          {t("sc.profile.title", "A little about you")}
+        </h1>
         <p className="summary">
-          This helps us ask the right questions and make tips that fit you.
-          Everything stays in your browser. Nothing is sent or saved.
+          {t(
+            "sc.profile.intro",
+            "This helps us ask the right questions and make tips that fit you. Everything stays in your browser. Nothing is sent or saved."
+          )}
         </p>
 
         {allProfileQuestions.map((q) => (
           <fieldset className="profile-group" key={q.id}>
-            <legend>{q.text}</legend>
-            {q.hint && <p className="hint">{q.hint}</p>}
+            <legend>{pText(q)}</legend>
+            {q.hint && <p className="hint">{t(`p.${q.id}.hint`, q.hint)}</p>}
             <div className="chip-row">
               {q.options.map((opt) => (
                 <button
@@ -108,7 +120,7 @@ export default function SymptomChecker() {
                   }
                   onClick={() => pickProfile(q.id, opt.value)}
                 >
-                  {opt.label}
+                  {pOpt(q, opt)}
                 </button>
               ))}
             </div>
@@ -116,7 +128,12 @@ export default function SymptomChecker() {
         ))}
 
         <fieldset className="profile-group">
-          <legend>Anything else you notice? (optional, pick any)</legend>
+          <legend>
+            {t(
+              "sc.profile.extras",
+              "Anything else you notice? (optional, pick any)"
+            )}
+          </legend>
           <div className="chip-row">
             {extraConcerns.map((opt) => (
               <button
@@ -128,18 +145,21 @@ export default function SymptomChecker() {
                 }
                 onClick={() => toggleExtra(opt.value)}
               >
-                {opt.label}
+                {t(`p.extras.${opt.value}`, opt.label)}
               </button>
             ))}
           </div>
         </fieldset>
 
         <fieldset className="profile-group">
-          <legend>Your own note (optional)</legend>
+          <legend>{t("sc.profile.note", "Your own note (optional)")}</legend>
           <textarea
             className="note-box"
             maxLength={300}
-            placeholder="For example: hair breaks near the ends"
+            placeholder={t(
+              "sc.profile.notePh",
+              "For example: hair breaks near the ends"
+            )}
             value={profile.note}
             onChange={(e) => setProfile({ ...profile, note: e.target.value })}
           />
@@ -147,10 +167,12 @@ export default function SymptomChecker() {
 
         <div className="profile-actions">
           <button disabled={!ready} onClick={() => setStage("questions")}>
-            Continue
+            {t("sc.continue", "Continue")}
           </button>
           {!ready && (
-            <p className="progress-text">Pick one option in each group above.</p>
+            <p className="progress-text">
+              {t("sc.pickAll", "Pick one option in each group above.")}
+            </p>
           )}
         </div>
       </div>
@@ -179,14 +201,22 @@ export default function SymptomChecker() {
   return (
     <div className="card">
       <p className="progress-text">
-        Question {step + 1}
-        {total ? ` of ${total}` : ""}
+        {total
+          ? t("sc.questionOf", {
+              defaultValue: "Question {{n}} of {{total}}",
+              n: step + 1,
+              total,
+            })
+          : t("sc.question", {
+              defaultValue: "Question {{n}}",
+              n: step + 1,
+            })}
       </p>
       <div className="progress">
         <div className="progress-bar" style={{ width: `${progress}%` }} />
       </div>
 
-      <h1 className="question">{current.text}</h1>
+      <h1 className="question">{qText(current)}</h1>
 
       <div className="options">
         {current.options.map((opt) => (
@@ -197,13 +227,13 @@ export default function SymptomChecker() {
             }
             onClick={() => choose(opt.value)}
           >
-            {opt.label}
+            {qOpt(current, opt)}
           </button>
         ))}
       </div>
 
       <button className="link-btn" onClick={goBack}>
-        ← Back
+        {t("sc.back", "← Back")}
       </button>
     </div>
   );

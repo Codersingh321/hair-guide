@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(undefined); // undefined = loading
   const [isGuest, setIsGuest] = useState(false);
+  const [recovering, setRecovering] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -14,9 +15,11 @@ export function AuthProvider({ children }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) setIsGuest(false);
+      // Someone opened a password reset link from their email
+      if (event === "PASSWORD_RECOVERY") setRecovering(true);
     });
 
     return () => subscription.unsubscribe();
@@ -53,6 +56,23 @@ export function AuthProvider({ children }) {
     setIsGuest(false);
   }
 
+  // Sends a password reset email. The link opens the login page.
+  async function resetPassword(email) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`,
+    });
+    if (error) throw error;
+  }
+
+  // Sets a new password for the person who opened the reset link.
+  async function updatePassword(newPassword) {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    if (error) throw error;
+    setRecovering(false);
+  }
+
   // Permanently deletes the account, profile, and all tracker entries.
   async function deleteAccount() {
     const { error } = await supabase.rpc("delete_my_account");
@@ -68,11 +88,14 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     isGuest,
+    recovering,
     isLoading: user === undefined,
     isLoggedIn: !!user,
     signUp,
     signIn,
     signOut,
+    resetPassword,
+    updatePassword,
     deleteAccount,
     continueAsGuest,
   };

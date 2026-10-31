@@ -32,6 +32,7 @@ const hindiFiles = [
   () => import("./hi.tracker.json"),
   () => import("./hi.account.json"),
   () => import("./hi.privacy.json"),
+  () => import("./hi.reset.json"),
 ];
 
 export async function setLanguage(lang) {

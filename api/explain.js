@@ -44,16 +44,16 @@ Rules you must always follow:
       })
     });
 
-        const data = await response.json();
+            const data = await response.json();
 
     if (!response.ok) {
-      return res.status(502).json({ error: "AI service unavailable", debug: data });
+      return res.status(502).json({ error: "AI service unavailable" });
     }
 
     const text = data.choices?.[0]?.message?.content?.trim();
 
     if (!text) {
-      return res.status(502).json({ error: "AI service unavailable", debug: data });
+      return res.status(502).json({ error: "AI service unavailable" });
     }
     return res.status(200).json({ explanation: text });
   } catch (err) {

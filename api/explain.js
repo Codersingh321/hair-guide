@@ -164,7 +164,10 @@ export default async function handler(req, res) {
   );
   if (usageError) {
     console.error("explain: usage check failed", usageError.code);
-    return reply(500, { error: "usage_check_failed" });
+        return reply(500, {
+      error: "usage_check_failed",
+      code: usageError.code || null,
+    });
   }
   if (verdict !== "ok") {
     return reply(verdict === "not_adult" ? 403 : 429, { error: verdict });

@@ -6,6 +6,7 @@ import { tips } from "../data/profileData.js";
 import { resultsContent, supplementNote } from "../data/resultsContent.js";
 import { sexExtras } from "../data/profileExtra.js";
 import { calculateResults, getTips } from "../utils/scoring.js";
+import AiExplain from "./AiExplain.jsx";
 
 const RANK_DEFAULTS = ["Most likely", "Also possible", "Less likely"];
 const COST_DEFAULTS = { free: "Free", low: "Low cost", medium: "Costs more" };
@@ -283,7 +284,10 @@ export default function ResultsView({
           )}
         </div>
       </div>
-
+            <AiExplain
+        causeIds={ranked.map((c) => c.id)}
+        ageGroup={profile.ageGroup}
+      />
       {profile.note.trim() && (
         <div className="user-note">
           <strong>{t("r.noteLabel", "Your note:")}</strong> {profile.note}

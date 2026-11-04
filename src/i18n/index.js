@@ -24,6 +24,7 @@ i18n.use(initReactI18next).init({
 });
 
 // Hindi text files. When you add a new hi.*.json file, add one line here.
+// If two files use the same key, the LATER file wins (hi.ai.json is last on purpose).
 const hindiFiles = [
   () => import("./hi.json"),
   () => import("./hi.checker.json"),
@@ -33,6 +34,7 @@ const hindiFiles = [
   () => import("./hi.account.json"),
   () => import("./hi.privacy.json"),
   () => import("./hi.reset.json"),
+  () => import("./hi.ai.json"),
 ];
 
 export async function setLanguage(lang) {

@@ -48,7 +48,7 @@ export default function Privacy() {
       <h3>{t("pv.never.h", "What we never store")}</h3>
       <ul className="care-list">
         {items("pv.never", [
-          "Your symptom checker answers, and your age group, gender, diet, place, and budget answers. They are used only in your browser to show your results, in both guest and account mode.",
+          "Your symptom checker answers, and your age group, gender, diet, place, and budget answers. They are not stored on our servers and are used only in your browser to show your results. The only exception is the optional AI explanation, described below.",
           "Your notes on the symptom checker profile screen.",
         ])}
       </ul>
@@ -66,6 +66,24 @@ export default function Privacy() {
           "When you log in, your browser keeps a login session in its local storage on your device."
         )}
       </p>
+
+      <h3>{t("pv.ai.h", "Optional AI explanation")}</h3>
+      <p>
+        {t(
+          "pv.ai.p",
+          "On the results page, logged-in adults can choose a short explanation written by an AI service. It is optional, and we send anything to it only when you choose to."
+        )}
+      </p>
+      <ul className="care-list">
+        {items("pv.ai", [
+          'What is sent: the names of the possible causes shown in your result (for example, "stress-related shedding") and the language you are using. Nothing else.',
+          "What is not sent: your answers, your age group, gender, diet, place, or budget, your notes, your email address, or your name.",
+          "The AI service is run by an outside company and processes this information outside India (in the United States). It may keep a short-term record for safety and reliability checks. We choose the provider's no-retention setting where one is offered, but we do not fully control how the provider handles data.",
+          "We store a count of how many AI explanations your account has used each day, so that we can apply daily limits. This count is deleted when you delete your account.",
+          "The AI writes in its own words, can make mistakes, and does not replace a doctor.",
+          "This feature is not available to guests or to people under 18. You can use HairAlly fully without it.",
+        ])}
+      </ul>
 
       <h3>{t("pv.choice.h", "Your choices")}</h3>
       <ul className="care-list">
@@ -119,7 +137,7 @@ export default function Privacy() {
       <p className="progress-text">
         {t(
           "pv.foot",
-          "This is a student project. Last updated October 2026. This page may change as the project grows."
+          "This is a student project. Last updated November 2026. This page may change as the project grows."
         )}
       </p>
     </div>

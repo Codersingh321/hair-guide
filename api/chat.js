@@ -8,6 +8,14 @@ const SUPABASE_KEY =
 
 const MAX_CHARS = 300; // longest message a person can send
 const HISTORY_LIMIT = 6; // how many earlier messages the AI sees
+const EXTRA_RULES = `
+
+Additional rules (these override anything above if they conflict):
+12. Do not name specific vitamins, minerals, or supplements as things to take or add to the diet. Talk about food groups instead, such as dal and pulses, eggs, milk and curd, paneer, green leafy vegetables, nuts, seeds, and fruit. If nutrition may be a cause, say a doctor can check with a blood test first.
+13. When asked in general why hair falls, mention that family history (genetics) is a common cause, along with stress or illness a few months earlier, nutrition, scalp problems, styling habits, and thyroid or hormone changes.
+14. Do not mention signs or conditions the person did not ask about, such as nail changes. Do not name skin or autoimmune conditions unless the person did.
+15. If the person writes Hindi in Roman letters (Hinglish), answer in simple Hindi written in Roman letters, not in Devanagari. If they write in Devanagari, answer in Devanagari. If they write in English, answer in English.
+16. Only state widely accepted points. If you are unsure, say it is best to ask a doctor.`;
 const UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -172,7 +180,7 @@ export default async function handler(req, res) {
         {
           role: "system",
           content:
-            SYSTEM_PROMPT +
+            SYSTEM_PROMPT + EXTRA_RULES +
             causesBlock(causeIds) +
             `\n\nLanguage hint from the website setting: ${
               lang === "hi" ? "Hindi" : "English"
